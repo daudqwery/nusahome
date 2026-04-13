@@ -42,8 +42,9 @@ const ProductCard = ({ product }: { product: Product }) => (
 const CatalogSection = () => {
   const categories = [
     { value: "sofa", label: "Sofa" },
-    { value: "kasur", label: "Kasur" },
     { value: "sofa-bed", label: "Sofa Bed" },
+    { value: "kasur", label: "Kasur" },
+    { value: "aksesoris", label: "Aksesoris" },
   ] as const;
 
   return (
