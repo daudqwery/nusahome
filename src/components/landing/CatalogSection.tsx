@@ -3,9 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MessageCircle, Info, Palette, Ruler } from "lucide-react";
+import { MessageCircle, Info, Palette } from "lucide-react";
 import { products, formatPrice, getWhatsAppOrderUrl, type Product } from "@/data/products";
+import ProductDetailDialog from "@/components/landing/ProductDetailDialog";
 
 const ProductCard = ({ product, onDetail }: { product: Product; onDetail: (p: Product) => void }) => (
   <Card className="overflow-hidden border-none shadow-md hover:shadow-xl transition-all group">
@@ -32,7 +32,6 @@ const ProductCard = ({ product, onDetail }: { product: Product; onDetail: (p: Pr
         </div>
       )}
 
-      {/* Color dots preview */}
       {product.colors && product.colors.length > 0 && (
         <div className="flex items-center gap-1 mb-2">
           <Palette className="h-3 w-3 text-muted-foreground" />
@@ -61,98 +60,6 @@ const ProductCard = ({ product, onDetail }: { product: Product; onDetail: (p: Pr
     </CardContent>
   </Card>
 );
-
-const ProductDetailDialog = ({ product, open, onClose }: { product: Product | null; open: boolean; onClose: () => void }) => {
-  if (!product) return null;
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-lg leading-tight">{product.name}</DialogTitle>
-        </DialogHeader>
-
-        <img src={product.image} alt={product.name} className="w-full h-56 object-cover rounded-lg" />
-
-        <div className="space-y-4">
-          {/* Price */}
-          <div className="flex items-end gap-2">
-            <span className="text-2xl font-bold text-primary">{formatPrice(product.price)}</span>
-            {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>
-            )}
-          </div>
-
-          {/* Rating & Sold */}
-          {(product.rating || product.sold) && (
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              {product.rating && <span className="text-amber-500">⭐ {product.rating}</span>}
-              {product.sold && <span>{product.sold} terjual</span>}
-            </div>
-          )}
-
-          {/* Description */}
-          <p className="text-sm text-muted-foreground">{product.description}</p>
-
-          {/* Colors */}
-          {product.colors && product.colors.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <Palette className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Pilihan Warna</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {product.colors.map((c) => (
-                  <Badge key={c} variant="secondary" className="text-xs">{c}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Sizes */}
-          {product.sizes && product.sizes.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <Ruler className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Pilihan Ukuran</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {product.sizes.map((s) => (
-                  <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Specs table */}
-          {product.specs && product.specs.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <Info className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Spesifikasi</span>
-              </div>
-              <div className="rounded-lg border overflow-hidden">
-                {product.specs.map((spec, i) => (
-                  <div key={spec.label} className={`flex text-xs ${i % 2 === 0 ? "bg-secondary/30" : ""}`}>
-                    <span className="w-28 flex-shrink-0 font-medium text-foreground p-2 border-r">{spec.label}</span>
-                    <span className="p-2 text-muted-foreground">{spec.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* CTA */}
-          <Button className="w-full rounded-full" asChild>
-            <a href={getWhatsAppOrderUrl(product.name)} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="mr-2 h-4 w-4" />
-              Order via WhatsApp
-            </a>
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 const CatalogSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
