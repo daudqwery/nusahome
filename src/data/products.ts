@@ -9,6 +9,14 @@ import sofaMinimalisAbu from "@/assets/products/sofa-minimalis-abu.jpg";
 import kasurPegas from "@/assets/products/kasur-pegas.jpg";
 import bantalMemoryFoam from "@/assets/products/bantal-memory-foam.jpg";
 
+export interface SizeVariant {
+  size: string;
+  price: number;
+  originalPrice?: number;
+  weight?: string;
+  dimensions?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -23,6 +31,7 @@ export interface Product {
   specs?: { label: string; value: string }[];
   colors?: string[];
   sizes?: string[];
+  sizeVariants?: SizeVariant[];
   weight?: string;
 }
 
@@ -40,17 +49,24 @@ export const products: Product[] = [
     sold: "500+",
     rating: 4.7,
     specs: [
-      { label: "Berat", value: "35 kg" },
       { label: "Kondisi", value: "Baru" },
       { label: "Preorder", value: "30 Hari" },
       { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Bean Bag" },
       { label: "Bahan", value: "Kain kepadatan tinggi anti-air" },
       { label: "Rangka", value: "Logam galvanis" },
-      { label: "Rating", value: "4.7 (98 rating)" },
+      { label: "Garansi", value: "10 Tahun" },
+      { label: "Rating", value: "4.7 (98 rating, 84 ulasan)" },
+      { label: "Kepuasan", value: "91% pembeli merasa puas" },
     ],
     colors: ["Abu-Abu", "Oranye", "Hijau", "Putih"],
     sizes: ["90CM (1 Orang)", "135CM (2 Orang Kecil)", "150CM (2 Orang Besar)", "180CM (3 Orang)"],
+    sizeVariants: [
+      { size: "90CM (1 Orang)", price: 1945000, originalPrice: 2945000, weight: "35 kg", dimensions: "90 × 95 × 65 cm" },
+      { size: "135CM (2 Orang Kecil)", price: 2445000, originalPrice: 3445000, weight: "42 kg", dimensions: "135 × 95 × 65 cm" },
+      { size: "150CM (2 Orang Besar)", price: 2945000, originalPrice: 3945000, weight: "48 kg", dimensions: "150 × 95 × 65 cm" },
+      { size: "180CM (3 Orang)", price: 3445000, originalPrice: 4445000, weight: "55 kg", dimensions: "180 × 95 × 65 cm" },
+    ],
     weight: "35 kg",
   },
   {
@@ -61,21 +77,20 @@ export const products: Product[] = [
     originalPrice: 9500000,
     image: sofabedLipatAesthetic,
     badge: "Diskon 74%",
-    description: "Sofa lipat multifungsi 2in1 dengan desain inovatif. Bahan kain anti-air, rangka logam galvanis, uji kekuatan 10.000 kali duduk. Mudah dirawat dengan microfiber atau vacuum.",
+    description: "Sofa lipat multifungsi dengan desain double folding, cocok untuk ruang kecil dan rumah. Bahan velvet lembut dan nyaman. Ideal untuk pertemuan keluarga dan ruang tamu.",
     sold: undefined,
-    rating: 5.0,
+    rating: undefined,
     specs: [
-      { label: "Berat", value: "58 - 88 kg" },
+      { label: "Berat", value: "33,4 kg" },
       { label: "Kondisi", value: "Baru" },
-      { label: "Preorder", value: "30 Hari" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Sofa Bed" },
-      { label: "Bahan", value: "Kain anti-air, rangka logam galvanis" },
-      { label: "Desain", value: "Inovatif 2in1" },
-      { label: "Garansi", value: "10 Tahun" },
+      { label: "Bahan", value: "Corduroy Velvet" },
+      { label: "Desain", value: "Double folding, multifungsi" },
+      { label: "Cocok Untuk", value: "Ruang kecil, rumah, ruang tamu" },
     ],
-    colors: ["Oranye", "Hijau", "Putih", "Abu-Abu", "Coklat Muda", "Putih Kuningan", "Hijau Tua"],
-    sizes: ["90CM (1 Orang)", "135CM (2 Orang Kecil)", "150CM (2 Orang Besar)", "180CM (3 Orang)"],
-    weight: "58-88 kg",
+    colors: ["Hitam", "Hijau", "Merah Muda", "Orange", "Abu-Abu", "Putih"],
+    weight: "33,4 kg",
   },
   {
     id: "3",
@@ -89,15 +104,22 @@ export const products: Product[] = [
     sold: "100+",
     rating: 5.0,
     specs: [
-      { label: "Berat", value: "35 kg" },
       { label: "Kondisi", value: "Baru" },
       { label: "Preorder", value: "20 Hari" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Sofa Bed" },
       { label: "Bahan", value: "Kain kepadatan tinggi" },
       { label: "Rating", value: "5.0 (28 rating, 24 ulasan)" },
+      { label: "Kepuasan", value: "100% pembeli merasa puas" },
     ],
     colors: ["Abu-Abu", "Hijau", "Putih", "Oranye"],
     sizes: ["90CM", "135CM", "150CM", "180CM"],
+    sizeVariants: [
+      { size: "90CM", price: 1945000, originalPrice: 2945000, weight: "35 kg", dimensions: "90 × 95 × 65 cm" },
+      { size: "135CM", price: 2445000, originalPrice: 3445000, weight: "42 kg", dimensions: "135 × 95 × 65 cm" },
+      { size: "150CM", price: 2945000, originalPrice: 3945000, weight: "48 kg", dimensions: "150 × 95 × 65 cm" },
+      { size: "180CM", price: 3445000, originalPrice: 4445000, weight: "55 kg", dimensions: "180 × 95 × 65 cm" },
+    ],
     weight: "35 kg",
   },
 
@@ -115,11 +137,14 @@ export const products: Product[] = [
     rating: 5.0,
     specs: [
       { label: "Berat", value: "9,4 kg" },
-      { label: "Ukuran", value: "70 x 90 x 70 cm" },
-      { label: "Kondisi", value: "Baru (Model 2025)" },
+      { label: "Ukuran", value: "70 × 90 × 70 cm" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Bean Bag" },
       { label: "Bahan", value: "Kain keriting anti-kotor" },
-      { label: "Fitur", value: "Anti-noda, tahan kompresi, dapat dicuci" },
+      { label: "Fitur", value: "Anti-noda, tahan kompresi, dapat dicuci, tahan aus" },
+      { label: "Rating", value: "5.0 (1 rating, 1 ulasan)" },
+      { label: "Kepuasan", value: "100% pembeli merasa puas" },
     ],
     colors: ["Pink", "Oranye", "Hijau", "Hitam", "Kuning", "Putih", "Abu-Abu"],
     weight: "9,4 kg",
@@ -137,10 +162,12 @@ export const products: Product[] = [
     rating: undefined,
     specs: [
       { label: "Berat", value: "9,4 kg" },
-      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Ukuran", value: "70 × 90 × 70 cm" },
       { label: "Kondisi", value: "Baru" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Bean Bag" },
       { label: "Bahan", value: "Kain keriting anti-kotor" },
+      { label: "Fitur", value: "Tahan noda, tahan tekanan, dapat dicuci, tahan aus" },
     ],
     colors: ["Putih", "Hijau", "Hitam", "Kuning", "Abu-Abu", "Pink", "Oranye"],
     weight: "9,4 kg",
@@ -158,12 +185,14 @@ export const products: Product[] = [
     rating: 5.0,
     specs: [
       { label: "Berat", value: "9,4 kg" },
-      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Ukuran", value: "70 × 90 × 70 cm" },
       { label: "Kondisi", value: "Baru" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Bean Bag" },
       { label: "Bahan", value: "Kain kepadatan tinggi" },
+      { label: "Fitur", value: "Keriting anti-kotor, tahan kompresi, dapat dicuci" },
     ],
-    colors: ["Kuning", "Oranye", "Hijau", "Hitam", "Putih", "Abu-Abu", "Warna Pink"],
+    colors: ["Kuning", "Oranye", "Hijau", "Hitam", "Putih", "Abu-Abu", "Pink"],
     weight: "9,4 kg",
   },
   {
@@ -179,12 +208,14 @@ export const products: Product[] = [
     rating: 5.0,
     specs: [
       { label: "Berat", value: "9,4 kg" },
-      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Ukuran", value: "70 × 90 × 70 cm" },
       { label: "Kondisi", value: "Baru" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Bean Bag" },
       { label: "Bahan", value: "Kain kepadatan tinggi" },
+      { label: "Fitur", value: "Tahan noda, tahan tekanan, dapat dicuci" },
     ],
-    colors: ["Oranye", "Hijau", "Hitam", "Kuning", "Putih", "Abu-Abu", "Warna Pink"],
+    colors: ["Oranye", "Hijau", "Hitam", "Kuning", "Putih", "Abu-Abu", "Pink"],
     weight: "9,4 kg",
   },
   {
@@ -200,37 +231,80 @@ export const products: Product[] = [
     rating: 5.0,
     specs: [
       { label: "Berat", value: "9,4 kg" },
-      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Ukuran", value: "70 × 90 × 70 cm" },
       { label: "Kondisi", value: "Baru" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Bean Bag" },
       { label: "Bahan", value: "Kain keriting anti-kotor" },
+      { label: "Fitur", value: "Anti-kotor, tahan kompresi, bisa dibongkar cuci" },
     ],
-    colors: ["Abu-Abu", "Hijau", "Hitam", "Kuning", "Putih", "Warna Pink", "Oranye"],
+    colors: ["Abu-Abu", "Hijau", "Hitam", "Kuning", "Putih", "Pink", "Oranye"],
     weight: "9,4 kg",
   },
 
   // === KASUR ===
   {
     id: "9",
-    name: "Kasur Pegas Busa Memory Foam & Springs",
+    name: "Kasur Pegas Busa Memory Foam & Springs 26CM",
     category: "kasur",
     price: 1042854,
     originalPrice: 4042854,
     image: kasurPegas,
     badge: "Diskon 74%",
-    description: "Kombinasi memory foam dan springs. Kekerasan sedang, penyangga pinggang, mendukung postur tubuh. Cocok untuk rumah, kamar tamu, dan hotel.",
+    description: "Kombinasi memory foam dan springs dengan ketebalan 26CM. Kekerasan sedang, penyangga pinggang, mendukung postur tubuh. Cocok untuk rumah, kamar tamu, dan hotel.",
     sold: undefined,
     rating: undefined,
     specs: [
-      { label: "Berat", value: "25-33 kg" },
       { label: "Kondisi", value: "Baru" },
       { label: "Preorder", value: "30 Hari" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Kasur" },
       { label: "Bahan", value: "Memory Foam + Springs" },
+      { label: "Ketebalan", value: "26 CM" },
       { label: "Kekerasan", value: "Sedang" },
+      { label: "Fitur", value: "Penyangga pinggang, mendukung postur tubuh" },
+      { label: "Cocok Untuk", value: "Rumah, kamar tamu, hotel" },
     ],
     sizes: ["90×200×26CM", "120×200×26CM", "140×200×26CM", "160×200×26CM", "180×200×26CM"],
+    sizeVariants: [
+      { size: "90×200×26CM", price: 1042854, originalPrice: 4042854, weight: "25 kg", dimensions: "90 × 200 × 26 cm" },
+      { size: "120×200×26CM", price: 1328572, originalPrice: 4328572, weight: "28 kg", dimensions: "120 × 200 × 26 cm" },
+      { size: "140×200×26CM", price: 1614286, originalPrice: 4614286, weight: "30 kg", dimensions: "140 × 200 × 26 cm" },
+      { size: "160×200×26CM", price: 1854286, originalPrice: 4854286, weight: "32 kg", dimensions: "160 × 200 × 26 cm" },
+      { size: "180×200×26CM", price: 2100000, originalPrice: 5100000, weight: "33 kg", dimensions: "180 × 200 × 26 cm" },
+    ],
     weight: "25-33 kg",
+  },
+  {
+    id: "11",
+    name: "Kasur Pegas Busa Memory Foam & Springs 20CM",
+    category: "kasur",
+    price: 741000,
+    image: kasurPegas,
+    badge: "Hemat",
+    description: "Kombinasi memory foam dan springs dengan ketebalan 20CM. Kekerasan sedang, penyangga pinggang, cocok untuk rumah, kamar tamu, dan hotel. Versi lebih tipis dan ekonomis.",
+    sold: undefined,
+    rating: undefined,
+    specs: [
+      { label: "Kondisi", value: "Baru" },
+      { label: "Preorder", value: "30 Hari" },
+      { label: "Min. Beli", value: "1 Buah" },
+      { label: "Kategori", value: "Kasur" },
+      { label: "Bahan", value: "Memory Foam + Springs" },
+      { label: "Ketebalan", value: "20 CM" },
+      { label: "Kekerasan", value: "Sedang" },
+      { label: "Fitur", value: "Penyangga pinggang, mendukung postur tubuh" },
+      { label: "Cocok Untuk", value: "Rumah, kamar tamu, hotel" },
+    ],
+    sizes: ["90×200×20CM", "120×200×20CM", "140×200×20CM", "160×200×20CM", "180×200×20CM"],
+    sizeVariants: [
+      { size: "90×200×20CM", price: 741000, weight: "20 kg", dimensions: "90 × 200 × 20 cm" },
+      { size: "120×200×20CM", price: 1042854, weight: "23 kg", dimensions: "120 × 200 × 20 cm" },
+      { size: "140×200×20CM", price: 1328572, weight: "25 kg", dimensions: "140 × 200 × 20 cm" },
+      { size: "160×200×20CM", price: 1514286, weight: "27 kg", dimensions: "160 × 200 × 20 cm" },
+      { size: "180×200×20CM", price: 1757143, weight: "29 kg", dimensions: "180 × 200 × 20 cm" },
+    ],
+    weight: "20-29 kg",
   },
 
   // === AKSESORIS ===
@@ -248,8 +322,10 @@ export const products: Product[] = [
       { label: "Berat", value: "300 g" },
       { label: "Ukuran", value: "35 × 55 × 12 cm" },
       { label: "Kondisi", value: "Baru" },
+      { label: "Min. Beli", value: "1 Buah" },
       { label: "Kategori", value: "Bantal Kepala" },
       { label: "Bahan", value: "100% Memory Foam" },
+      { label: "Kualitas", value: "Hotel Premium" },
     ],
     sizes: ["35×55cm"],
     weight: "300 g",
@@ -262,5 +338,7 @@ export const formatPrice = (price: number) =>
 export const WHATSAPP_NUMBER = "6281234567890";
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 
-export const getWhatsAppOrderUrl = (productName: string) =>
-  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Halo NusaHome, saya tertarik dengan produk: ${productName}. Apakah masih tersedia?`)}`;
+export const getWhatsAppOrderUrl = (productName: string, selectedSize?: string) => {
+  const sizeText = selectedSize ? ` (Ukuran: ${selectedSize})` : "";
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Halo NusaHome, saya tertarik dengan produk: ${productName}${sizeText}. Apakah masih tersedia?`)}`;
+};

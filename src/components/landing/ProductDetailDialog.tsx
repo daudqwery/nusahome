@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Info, Palette, Ruler, ChevronLeft, ChevronRight } from "lucide-react";
-import { formatPrice, getWhatsAppOrderUrl, type Product } from "@/data/products";
+import { formatPrice, getWhatsAppOrderUrl, type Product, type SizeVariant } from "@/data/products";
 import { productGalleries, productColorVariants } from "@/data/productImages";
 
 const ImageGallery = ({ productId, productName }: { productId: string; productName: string }) => {
@@ -31,7 +31,6 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
 
   return (
     <div className="relative">
-      {/* Main carousel */}
       <div className="overflow-hidden rounded-lg" ref={emblaRef}>
         <div className="flex">
           {images.map((img, i) => (
@@ -41,8 +40,6 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
           ))}
         </div>
       </div>
-
-      {/* Nav arrows */}
       {images.length > 1 && (
         <>
           <button onClick={scrollPrev} className="absolute left-1 top-1/2 -translate-y-1/2 bg-background/80 rounded-full p-1 shadow-md hover:bg-background">
@@ -53,8 +50,6 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
           </button>
         </>
       )}
-
-      {/* Dots */}
       {images.length > 1 && (
         <div className="flex justify-center gap-1.5 mt-2">
           {images.map((_, i) => (
@@ -66,8 +61,6 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
           ))}
         </div>
       )}
-
-      {/* Thumbnails */}
       {images.length > 1 && (
         <div className="flex gap-1.5 mt-2 overflow-x-auto pb-1">
           {images.map((img, i) => (
@@ -120,8 +113,66 @@ const ColorVariantPicker = ({ productId, onSelect }: { productId: string; onSele
   );
 };
 
+const SizeVariantPicker = ({
+  sizeVariants,
+  selectedIndex,
+  onSelect,
+}: {
+  sizeVariants: SizeVariant[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+}) => {
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-2">
+        <Ruler className="h-4 w-4 text-primary" />
+        <span className="text-sm font-semibold text-foreground">Pilihan Ukuran & Harga</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {sizeVariants.map((sv, i) => (
+          <button
+            key={sv.size}
+            onClick={() => onSelect(i)}
+            className={`flex items-center justify-between p-2.5 rounded-lg border-2 transition-colors text-left ${
+              i === selectedIndex
+                ? "border-primary bg-primary/5"
+                : "border-muted hover:border-primary/50"
+            }`}
+          >
+            <div>
+              <span className="text-xs font-medium text-foreground">{sv.size}</span>
+              {sv.weight && (
+                <span className="text-[10px] text-muted-foreground ml-2">({sv.weight})</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-bold text-primary">{formatPrice(sv.price)}</span>
+              {sv.originalPrice && (
+                <span className="text-[10px] text-muted-foreground line-through">{formatPrice(sv.originalPrice)}</span>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const ProductDetailDialog = ({ product, open, onClose }: { product: Product | null; open: boolean; onClose: () => void }) => {
+  const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
+
+  // Reset size selection when product changes
+  useEffect(() => {
+    setSelectedSizeIndex(0);
+  }, [product?.id]);
+
   if (!product) return null;
+
+  const hasSizeVariants = product.sizeVariants && product.sizeVariants.length > 0;
+  const currentPrice = hasSizeVariants ? product.sizeVariants![selectedSizeIndex].price : product.price;
+  const currentOriginalPrice = hasSizeVariants ? product.sizeVariants![selectedSizeIndex].originalPrice : product.originalPrice;
+  const currentSize = hasSizeVariants ? product.sizeVariants![selectedSizeIndex].size : undefined;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -129,15 +180,14 @@ export const ProductDetailDialog = ({ product, open, onClose }: { product: Produ
           <DialogTitle className="text-lg leading-tight">{product.name}</DialogTitle>
         </DialogHeader>
 
-        {/* Swipeable Gallery */}
         <ImageGallery productId={product.id} productName={product.name} />
 
         <div className="space-y-4">
           {/* Price */}
           <div className="flex items-end gap-2">
-            <span className="text-2xl font-bold text-primary">{formatPrice(product.price)}</span>
-            {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>
+            <span className="text-2xl font-bold text-primary">{formatPrice(currentPrice)}</span>
+            {currentOriginalPrice && (
+              <span className="text-sm text-muted-foreground line-through">{formatPrice(currentOriginalPrice)}</span>
             )}
           </div>
 
@@ -152,11 +202,20 @@ export const ProductDetailDialog = ({ product, open, onClose }: { product: Produ
           {/* Description */}
           <p className="text-sm text-muted-foreground">{product.description}</p>
 
-          {/* Color Variant Picker with images */}
+          {/* Color Variant Picker */}
           <ColorVariantPicker productId={product.id} onSelect={() => {}} />
 
-          {/* Sizes */}
-          {product.sizes && product.sizes.length > 0 && (
+          {/* Size Variants with pricing */}
+          {hasSizeVariants && (
+            <SizeVariantPicker
+              sizeVariants={product.sizeVariants!}
+              selectedIndex={selectedSizeIndex}
+              onSelect={setSelectedSizeIndex}
+            />
+          )}
+
+          {/* Simple sizes (for products without size variants) */}
+          {!hasSizeVariants && product.sizes && product.sizes.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <Ruler className="h-4 w-4 text-primary" />
@@ -190,7 +249,7 @@ export const ProductDetailDialog = ({ product, open, onClose }: { product: Produ
 
           {/* CTA */}
           <Button className="w-full rounded-full" asChild>
-            <a href={getWhatsAppOrderUrl(product.name)} target="_blank" rel="noopener noreferrer">
+            <a href={getWhatsAppOrderUrl(product.name, currentSize)} target="_blank" rel="noopener noreferrer">
               <MessageCircle className="mr-2 h-4 w-4" />
               Order via WhatsApp
             </a>
