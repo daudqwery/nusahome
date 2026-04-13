@@ -146,6 +146,9 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
           ))}
         </div>
       )}
+      {zoomImage && (
+        <ImageZoomOverlay src={zoomImage} alt={productName} onClose={() => setZoomImage(null)} />
+      )}
     </div>
   );
 };
