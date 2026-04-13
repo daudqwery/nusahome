@@ -1,3 +1,14 @@
+import sofaBedMinimalis from "@/assets/products/sofa-bed-minimalis.jpg";
+import sofabedLipatAesthetic from "@/assets/products/sofabed-lipat-aesthetic.jpg";
+import sofaBed3in1 from "@/assets/products/sofa-bed-3in1.jpg";
+import beanbag2026 from "@/assets/products/beanbag-2026.jpg";
+import sofaMalasLipat from "@/assets/products/sofa-malas-lipat.jpg";
+import beanbagKuning from "@/assets/products/beanbag-kuning.jpg";
+import beanbagOranye from "@/assets/products/beanbag-oranye.jpg";
+import sofaMinimalisAbu from "@/assets/products/sofa-minimalis-abu.jpg";
+import kasurPegas from "@/assets/products/kasur-pegas.jpg";
+import bantalMemoryFoam from "@/assets/products/bantal-memory-foam.jpg";
+
 export interface Product {
   id: string;
   name: string;
@@ -9,6 +20,10 @@ export interface Product {
   description: string;
   sold?: string;
   rating?: number;
+  specs?: { label: string; value: string }[];
+  colors?: string[];
+  sizes?: string[];
+  weight?: string;
 }
 
 export const products: Product[] = [
@@ -19,11 +34,21 @@ export const products: Product[] = [
     category: "sofa-bed",
     price: 1945000,
     originalPrice: 2945000,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/86812ad623d6493890063379733d6218~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088643&x-signature=11lTyuQGPMzTLcBlkQes0UbhClE%3D&x-signature-webp=HZidfhnLtRG7pTx2ZebVdtb4jwY%3D",
+    image: sofaBedMinimalis,
     badge: "Best Seller",
-    description: "Nyaman empuk, bahan vacuum anti bau, rangka kuat & sandaran bisa dilepas. Tersedia warna Abu-Abu, Oranye, Hijau, Putih. Ukuran 90CM - 180CM.",
+    description: "Nyaman empuk, bahan vacuum anti bau, rangka kuat & sandaran bisa dilepas. Kain kepadatan tinggi, anti-kotor, tahan kompresi, dapat dicuci.",
     sold: "500+",
     rating: 4.7,
+    specs: [
+      { label: "Berat", value: "35 kg" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Preorder", value: "30 Hari" },
+      { label: "Kategori", value: "Bean Bag" },
+      { label: "Bahan", value: "Kain kepadatan tinggi" },
+    ],
+    colors: ["Abu-Abu", "Oranye", "Hijau", "Putih"],
+    sizes: ["90CM", "135CM", "150CM", "180CM"],
+    weight: "35 kg",
   },
   {
     id: "2",
@@ -31,9 +56,20 @@ export const products: Product[] = [
     category: "sofa-bed",
     price: 2500000,
     originalPrice: 9500000,
-    image: "https://p19-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/60cdbb9576da4c1b8e4060e4e52e8f45~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088653&x-signature=6q%2BdkJB2MUTJlVxcztDh70MydbE%3D&x-signature-webp=D6SgMtiPU2%2F1ziBevFZHC%2B%2F2EDo%3D",
+    image: sofabedLipatAesthetic,
     badge: "Diskon 74%",
-    description: "Corduroy velvet, double folding, cocok untuk ruang kecil dan pertemuan keluarga. Bahan lembut dan nyaman. Tersedia 6 warna.",
+    description: "Sofa lipat multifungsi dengan desain double folding. Bahan velvet lembut dan nyaman. Cocok untuk ruang kecil, pertemuan keluarga, dan ruang tamu.",
+    sold: undefined,
+    rating: undefined,
+    specs: [
+      { label: "Berat", value: "33,4 kg" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Kategori", value: "Sofa Bed" },
+      { label: "Bahan", value: "Corduroy Velvet" },
+      { label: "Desain", value: "Double Folding" },
+    ],
+    colors: ["Hitam", "Hijau", "Merah Muda", "Orange", "Abu-Abu", "Putih"],
+    weight: "33,4 kg",
   },
   {
     id: "3",
@@ -41,11 +77,22 @@ export const products: Product[] = [
     category: "sofa-bed",
     price: 1945000,
     originalPrice: 2945000,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/b9acf4e889f144e89ac8569912c33c41~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088661&x-signature=kJYTzYDr4N%2BQW0I%2BD%2FZ4OcWapu8%3D&x-signature-webp=XISByORUMXe84dQiOptoDBijvT4%3D",
+    image: sofaBed3in1,
     badge: "Diskon 34%",
-    description: "Modern simple desain elegan, mudah dibuka. Tersedia 4 warna & 4 ukuran. Rating 5.0, 100+ terjual.",
+    description: "Modern simple desain elegan, mudah dibuka. Kain kepadatan tinggi, anti-kotor, tahan kompresi, dapat dicuci. 100% pembeli merasa puas.",
     sold: "100+",
     rating: 5.0,
+    specs: [
+      { label: "Berat", value: "35 kg" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Preorder", value: "20 Hari" },
+      { label: "Kategori", value: "Sofa Bed" },
+      { label: "Bahan", value: "Kain kepadatan tinggi" },
+      { label: "Rating", value: "5.0 (28 rating, 24 ulasan)" },
+    ],
+    colors: ["Abu-Abu", "Hijau", "Putih", "Oranye"],
+    sizes: ["90CM", "135CM", "150CM", "180CM"],
+    weight: "35 kg",
   },
 
   // === SOFA BEANBAG ===
@@ -55,11 +102,20 @@ export const products: Product[] = [
     category: "sofa",
     price: 1200000,
     originalPrice: 5200000,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/0691c1e5e12e44599094cda337d5e1f0~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088669&x-signature=JMPM%2B3r5bHoh1ETa9eTAF1ES%2Br8%3D&x-signature-webp=RMpNpKwBUKR7TaEAez7JvNLPuf4%3D",
+    image: beanbag2026,
     badge: "Diskon 77%",
-    description: "Kain keriting tahan noda & aus, dapat dicuci. Tersedia 7 warna. Ukuran 70x90x70cm.",
+    description: "Sofa beanbag pilihan tepat untuk ruang tamu. Kepadatan kain nyaman dan mewah, anti-kotor, tahan tekanan, dapat dicuci dan tahan aus.",
     sold: "18",
     rating: 5.0,
+    specs: [
+      { label: "Berat", value: "9,4 kg" },
+      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Kategori", value: "Bean Bag" },
+      { label: "Bahan", value: "Kain keriting anti-kotor" },
+    ],
+    colors: ["Warna Pink", "Oranye", "Hijau", "Hitam", "Kuning", "Putih", "Abu-Abu"],
+    weight: "9,4 kg",
   },
   {
     id: "5",
@@ -67,9 +123,20 @@ export const products: Product[] = [
     category: "sofa",
     price: 1200000,
     originalPrice: 5200000,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/f547afe738af48ff9ea88f8f349151a8~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088693&x-signature=FQiOvrZqeoRKIT4OjTFftlaUTSY%3D&x-signature-webp=w1qsurZb61kDkbbF%2FCn4u0s2ce8%3D",
+    image: sofaMalasLipat,
     badge: "Diskon 77%",
-    description: "Sofa mini rumah kecil, bisa dibongkar cuci. Tersedia 7 warna.",
+    description: "Sofa beanbag lembut dan fleksibel. Tahan noda, tahan tekanan, dapat dicuci, tahan aus. Furnitur minimalis gaya baru, bisa dibongkar cuci.",
+    sold: "2",
+    rating: undefined,
+    specs: [
+      { label: "Berat", value: "9,4 kg" },
+      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Kategori", value: "Bean Bag" },
+      { label: "Bahan", value: "Kain keriting anti-kotor" },
+    ],
+    colors: ["Putih", "Hijau", "Hitam", "Kuning", "Abu-Abu", "Pink", "Oranye"],
+    weight: "9,4 kg",
   },
   {
     id: "6",
@@ -77,11 +144,20 @@ export const products: Product[] = [
     category: "sofa",
     price: 1200000,
     originalPrice: 5200000,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/80c87dd876e34aebad406b682808e533~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088706&x-signature=mqdRaX%2BKQZZ9Esf9nJPYn1LagjI%3D&x-signature-webp=xA0rVOLSfy5KRrv9Jc6VrRJZM0Y%3D",
+    image: beanbagKuning,
     badge: "Diskon 77%",
-    description: "Lembut keriting anti-kotor, tahan kompresi, dapat dicuci. Tersedia 7 warna.",
+    description: "Lembut keriting anti-kotor, tahan kompresi, dapat dicuci. Nyaman dan lembut, cocok untuk duduk lama. Mudah dibersihkan.",
     sold: "11",
     rating: 5.0,
+    specs: [
+      { label: "Berat", value: "9,4 kg" },
+      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Kategori", value: "Bean Bag" },
+      { label: "Bahan", value: "Kain kepadatan tinggi" },
+    ],
+    colors: ["Kuning", "Oranye", "Hijau", "Hitam", "Putih", "Abu-Abu", "Warna Pink"],
+    weight: "9,4 kg",
   },
   {
     id: "7",
@@ -89,11 +165,20 @@ export const products: Product[] = [
     category: "sofa",
     price: 1200000,
     originalPrice: 5200000,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/f5e0c4b4aa3d4690b6ce3840e271176d~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088722&x-signature=1a9jfRrJi%2FHl3%2FqQfXGpb9Z0D%2BY%3D&x-signature-webp=VsJ6BFTtr6S%2B0DbCHbHpNQnr85Y%3D",
+    image: beanbagOranye,
     badge: "Diskon 77%",
-    description: "Kain kepadatan tinggi, nyaman dan lembut, tahan tekanan. Tersedia 7 warna.",
+    description: "Kain kepadatan tinggi, nyaman dan lembut, tahan noda dan tekanan. Dapat dicuci. Cocok untuk ruang tamu Anda.",
     sold: "2",
     rating: 5.0,
+    specs: [
+      { label: "Berat", value: "9,4 kg" },
+      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Kategori", value: "Bean Bag" },
+      { label: "Bahan", value: "Kain kepadatan tinggi" },
+    ],
+    colors: ["Oranye", "Hijau", "Hitam", "Kuning", "Putih", "Abu-Abu", "Warna Pink"],
+    weight: "9,4 kg",
   },
   {
     id: "8",
@@ -101,11 +186,20 @@ export const products: Product[] = [
     category: "sofa",
     price: 1200000,
     originalPrice: 5200000,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/d0d563c28c6a42a9befc2b75a6e8e122~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088714&x-signature=VvrvSNfHRDz7bvUouOlMFqO8yAo%3D&x-signature-webp=2noV4QtSGfdBjH9ydCbIAw%2FLeTk%3D",
+    image: sofaMinimalisAbu,
     badge: "Diskon 77%",
-    description: "Sofa mini rumah kecil, bisa dibongkar cuci COD. Tersedia 7 warna.",
+    description: "Sofa mini rumah kecil, bisa dibongkar cuci. Anti-kotor, tahan kompresi, furnitur minimalis. Ready stock, COD tersedia.",
     sold: "20",
     rating: 5.0,
+    specs: [
+      { label: "Berat", value: "9,4 kg" },
+      { label: "Ukuran", value: "70 x 90 x 70 cm" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Kategori", value: "Bean Bag" },
+      { label: "Bahan", value: "Kain keriting anti-kotor" },
+    ],
+    colors: ["Abu-Abu", "Hijau", "Hitam", "Kuning", "Putih", "Warna Pink", "Oranye"],
+    weight: "9,4 kg",
   },
 
   // === KASUR ===
@@ -115,9 +209,21 @@ export const products: Product[] = [
     category: "kasur",
     price: 1042854,
     originalPrice: 4042854,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/513526d6504d49d8b9f9fe6cabbbf52e~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088748&x-signature=TM9kZWhNPQlEUM1Xn8g6iEI7974%3D&x-signature-webp=kOMAL6q7S6rpU5fycG55rJUKgmA%3D",
+    image: kasurPegas,
     badge: "Diskon 74%",
-    description: "Kombinasi memory foam dan springs, kekerasan sedang, penyangga pinggang. Cocok untuk rumah, kamar tamu, dan hotel. Ukuran 90-180cm.",
+    description: "Kombinasi memory foam dan springs. Kekerasan sedang, penyangga pinggang, mendukung postur tubuh. Cocok untuk rumah, kamar tamu, dan hotel.",
+    sold: undefined,
+    rating: undefined,
+    specs: [
+      { label: "Berat", value: "25-33 kg" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Preorder", value: "30 Hari" },
+      { label: "Kategori", value: "Kasur" },
+      { label: "Bahan", value: "Memory Foam + Springs" },
+      { label: "Kekerasan", value: "Sedang" },
+    ],
+    sizes: ["90×200×26CM", "120×200×26CM", "140×200×26CM", "160×200×26CM", "180×200×26CM"],
+    weight: "25-33 kg",
   },
 
   // === AKSESORIS ===
@@ -126,11 +232,20 @@ export const products: Product[] = [
     name: "Bantal Memory Foam Original 100% Hotel Premium",
     category: "aksesoris",
     price: 200000,
-    image: "https://p16-images-sign-sg.tokopedia-static.net/tos-alisg-i-aphluv4xwc-sg/5478dbde5b01483e91f75ab2c7f84c38~tplv-aphluv4xwc-white-pad-v1:1600:1600.jpeg?lk3s=0ccea506&x-expires=1776088701&x-signature=ixVyYBddfg96PcqjPRWXfPiPz00%3D&x-signature-webp=rKix0j9NqHl7rSEohcEInuc8yu8%3D",
+    image: bantalMemoryFoam,
     badge: "Terlaris",
-    description: "Berbahan 100% memory foam, ukuran 35x55x12cm. Cocok untuk hotel dan rumah.",
+    description: "Berbahan 100% memory foam. Ukuran 35×55×12cm. Kualitas hotel premium untuk tidur nyaman setiap malam.",
     sold: "100+",
     rating: 5.0,
+    specs: [
+      { label: "Berat", value: "300 g" },
+      { label: "Ukuran", value: "35 × 55 × 12 cm" },
+      { label: "Kondisi", value: "Baru" },
+      { label: "Kategori", value: "Bantal Kepala" },
+      { label: "Bahan", value: "100% Memory Foam" },
+    ],
+    sizes: ["35×55cm"],
+    weight: "300 g",
   },
 ];
 
