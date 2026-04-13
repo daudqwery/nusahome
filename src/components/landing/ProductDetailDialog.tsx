@@ -80,6 +80,9 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
   const images = productGalleries[productId] || [];
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
