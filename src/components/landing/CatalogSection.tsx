@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Info, Palette } from "lucide-react";
+import { products as staticProducts } from "@/data/products";
 import { formatPrice, getWhatsAppOrderUrl, type Product } from "@/data/products";
 import ProductDetailDialog from "@/components/landing/ProductDetailDialog";
 
