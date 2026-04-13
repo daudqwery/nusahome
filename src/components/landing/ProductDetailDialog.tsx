@@ -133,23 +133,28 @@ const SizeVariantPicker = ({
           <button
             key={sv.size}
             onClick={() => onSelect(i)}
-            className={`flex items-center justify-between p-2.5 rounded-lg border-2 transition-colors text-left ${
+            className={`flex items-center gap-2.5 p-2.5 rounded-lg border-2 transition-colors text-left ${
               i === selectedIndex
                 ? "border-primary bg-primary/5"
                 : "border-muted hover:border-primary/50"
             }`}
           >
-            <div>
-              <span className="text-xs font-medium text-foreground">{sv.size}</span>
-              {sv.weight && (
-                <span className="text-[10px] text-muted-foreground ml-2">({sv.weight})</span>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-bold text-primary">{formatPrice(sv.price)}</span>
-              {sv.originalPrice && (
-                <span className="text-[10px] text-muted-foreground line-through">{formatPrice(sv.originalPrice)}</span>
-              )}
+            {sv.image && (
+              <img src={sv.image} alt={sv.size} className="w-12 h-12 rounded-md object-cover flex-shrink-0" />
+            )}
+            <div className="flex-1 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-medium text-foreground">{sv.size}</span>
+                {sv.weight && (
+                  <span className="text-[10px] text-muted-foreground ml-2">({sv.weight})</span>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-bold text-primary">{formatPrice(sv.price)}</span>
+                {sv.originalPrice && (
+                  <span className="text-[10px] text-muted-foreground line-through">{formatPrice(sv.originalPrice)}</span>
+                )}
+              </div>
             </div>
           </button>
         ))}

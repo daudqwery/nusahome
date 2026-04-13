@@ -4,6 +4,7 @@ export interface SizeVariant {
   originalPrice?: number;
   weight?: string;
   dimensions?: string;
+  image?: string;
 }
 
 export interface Product {
