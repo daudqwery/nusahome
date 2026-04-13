@@ -1,10 +1,10 @@
 import { Store, Star, Users, Package } from "lucide-react";
 
 const stats = [
-  { icon: Package, value: "5000+", label: "Produk Terjual" },
-  { icon: Star, value: "4.9/5", label: "Rating Toko" },
-  { icon: Users, value: "3000+", label: "Pelanggan Puas" },
-  { icon: Store, value: "3+", label: "Tahun Berpengalaman" },
+  { icon: Package, value: "2258+", label: "Produk Terjual" },
+  { icon: Star, value: "4.9/5", label: "Rating Toko (55 ulasan)" },
+  { icon: Users, value: "31", label: "Total Produk" },
+  { icon: Store, value: "Kab. Tangerang", label: "Lokasi Toko" },
 ];
 
 const AboutSection = () => {
