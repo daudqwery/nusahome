@@ -3,84 +3,14 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Info, Palette, Ruler, ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
+import { MessageCircle, Info, Palette, Ruler, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatPrice, getWhatsAppOrderUrl, type Product, type SizeVariant } from "@/data/products";
 import { productGalleries, productColorVariants } from "@/data/productImages";
-
-const ImageZoomOverlay = ({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) => {
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const [start, setStart] = useState({ x: 0, y: 0 });
-
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.stopPropagation();
-    setScale(s => Math.min(4, Math.max(1, s - e.deltaY * 0.002)));
-  }, []);
-
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (scale <= 1) return;
-    setDragging(true);
-    setStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, [scale, position]);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragging) return;
-    setPosition({ x: e.clientX - start.x, y: e.clientY - start.y });
-  }, [dragging, start]);
-
-  const handlePointerUp = useCallback(() => setDragging(false), []);
-
-  const toggleZoom = useCallback(() => {
-    if (scale > 1) {
-      setScale(1);
-      setPosition({ x: 0, y: 0 });
-    } else {
-      setScale(2.5);
-    }
-  }, [scale]);
-
-  return (
-    <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center" onClick={onClose}>
-      <button onClick={onClose} className="absolute top-4 right-4 z-10 text-white/80 hover:text-white bg-black/40 rounded-full p-2">
-        <X className="h-5 w-5" />
-      </button>
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-        <button onClick={(e) => { e.stopPropagation(); setScale(s => Math.max(1, s - 0.5)); }} className="text-white/80 hover:text-white bg-black/40 rounded-full p-2">
-          <ZoomOut className="h-5 w-5" />
-        </button>
-        <span className="text-white/60 text-sm self-center px-2">{Math.round(scale * 100)}%</span>
-        <button onClick={(e) => { e.stopPropagation(); setScale(s => Math.min(4, s + 0.5)); }} className="text-white/80 hover:text-white bg-black/40 rounded-full p-2">
-          <ZoomIn className="h-5 w-5" />
-        </button>
-      </div>
-      <div
-        className="w-full h-full flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing"
-        onClick={(e) => e.stopPropagation()}
-        onDoubleClick={toggleZoom}
-        onWheel={handleWheel}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-      >
-        <img
-          src={src}
-          alt={alt}
-          className="max-w-full max-h-full object-contain select-none transition-transform duration-150"
-          style={{ transform: `translate(${position.x}px, ${position.y}px) scale(${scale})` }}
-          draggable={false}
-        />
-      </div>
-    </div>
-  );
-};
 
 const ImageGallery = ({ productId, productName }: { productId: string; productName: string }) => {
   const images = productGalleries[productId] || [];
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [zoomImage, setZoomImage] = useState<string | null>(null);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -104,7 +34,7 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
       <div className="overflow-hidden rounded-lg" ref={emblaRef}>
         <div className="flex">
           {images.map((img, i) => (
-            <div key={i} className="flex-[0_0_100%] min-w-0 cursor-zoom-in" onClick={() => setZoomImage(img)}>
+            <div key={i} className="flex-[0_0_100%] min-w-0">
               <img src={img} alt={`${productName} - foto ${i + 1}`} className="w-full h-56 object-cover" />
             </div>
           ))}
@@ -145,9 +75,6 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
             </button>
           ))}
         </div>
-      )}
-      {zoomImage && (
-        <ImageZoomOverlay src={zoomImage} alt={productName} onClose={() => setZoomImage(null)} />
       )}
     </div>
   );
