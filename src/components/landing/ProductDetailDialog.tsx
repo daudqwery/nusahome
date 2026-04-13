@@ -88,11 +88,13 @@ const ColorVariantPicker = ({ productId, onSelect }: { productId: string; onSele
 
   return (
     <div>
-      <div className="flex items-center gap-1.5 mb-2">
+      <div className="flex items-center gap-1.5 mb-2.5">
         <Palette className="h-4 w-4 text-primary" />
-        <span className="text-sm font-semibold text-foreground">Pilihan Warna</span>
+        <span className="text-sm font-semibold text-foreground">
+          Pilih warna: <span className="font-normal text-muted-foreground">{variants[selected].name}</span>
+        </span>
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex flex-wrap gap-2">
         {variants.map((v, i) => (
           <button
             key={v.name}
@@ -100,12 +102,14 @@ const ColorVariantPicker = ({ productId, onSelect }: { productId: string; onSele
               setSelected(i);
               onSelect(v.image);
             }}
-            className={`flex-shrink-0 flex flex-col items-center gap-1 p-1 rounded-lg border-2 transition-colors ${
-              i === selected ? "border-primary bg-primary/5" : "border-transparent hover:border-muted"
+            className={`flex items-center gap-2 px-2 py-1.5 rounded-full border-2 transition-all ${
+              i === selected
+                ? "border-primary bg-primary/5 shadow-sm"
+                : "border-border hover:border-primary/40"
             }`}
           >
-            <img src={v.image} alt={v.name} className="w-12 h-12 rounded-md object-cover" />
-            <span className="text-[10px] text-muted-foreground font-medium">{v.name}</span>
+            <img src={v.image} alt={v.name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+            <span className={`text-xs font-medium pr-1 ${i === selected ? "text-primary" : "text-foreground"}`}>{v.name}</span>
           </button>
         ))}
       </div>
@@ -124,40 +128,54 @@ const SizeVariantPicker = ({
 }) => {
   return (
     <div>
-      <div className="flex items-center gap-1.5 mb-2">
+      <div className="flex items-center gap-1.5 mb-2.5">
         <Ruler className="h-4 w-4 text-primary" />
-        <span className="text-sm font-semibold text-foreground">Pilihan Ukuran & Harga</span>
+        <span className="text-sm font-semibold text-foreground">
+          Pilih ukuran: <span className="font-normal text-muted-foreground">{sizeVariants[selectedIndex].size}</span>
+        </span>
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap gap-2 mb-3">
         {sizeVariants.map((sv, i) => (
           <button
             key={sv.size}
             onClick={() => onSelect(i)}
-            className={`flex items-center gap-2.5 p-2.5 rounded-lg border-2 transition-colors text-left ${
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
               i === selectedIndex
-                ? "border-primary bg-primary/5"
-                : "border-muted hover:border-primary/50"
+                ? "border-primary bg-primary/5 shadow-sm"
+                : "border-border hover:border-primary/40"
             }`}
           >
             {sv.image && (
-              <img src={sv.image} alt={sv.size} className="w-12 h-12 rounded-md object-cover flex-shrink-0" />
+              <img src={sv.image} alt={sv.size} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
             )}
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <span className="text-xs font-medium text-foreground">{sv.size}</span>
-                {sv.weight && (
-                  <span className="text-[10px] text-muted-foreground ml-2">({sv.weight})</span>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-primary">{formatPrice(sv.price)}</span>
-                {sv.originalPrice && (
-                  <span className="text-[10px] text-muted-foreground line-through">{formatPrice(sv.originalPrice)}</span>
-                )}
-              </div>
+            <div className="text-left">
+              <span className={`text-xs font-semibold block ${i === selectedIndex ? "text-primary" : "text-foreground"}`}>{sv.size}</span>
+              {sv.weight && (
+                <span className="text-[10px] text-muted-foreground">{sv.weight}</span>
+              )}
             </div>
           </button>
         ))}
+      </div>
+      {/* Selected size price detail */}
+      <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/40 border border-border">
+        <div className="flex items-center gap-2">
+          {sizeVariants[selectedIndex].image && (
+            <img src={sizeVariants[selectedIndex].image} alt="" className="w-10 h-10 rounded-md object-cover" />
+          )}
+          <div>
+            <span className="text-xs font-medium text-foreground block">{sizeVariants[selectedIndex].size}</span>
+            {sizeVariants[selectedIndex].weight && (
+              <span className="text-[10px] text-muted-foreground">{sizeVariants[selectedIndex].weight}</span>
+            )}
+          </div>
+        </div>
+        <div className="text-right">
+          <span className="text-lg font-bold text-primary block">{formatPrice(sizeVariants[selectedIndex].price)}</span>
+          {sizeVariants[selectedIndex].originalPrice && (
+            <span className="text-[10px] text-muted-foreground line-through">{formatPrice(sizeVariants[selectedIndex].originalPrice)}</span>
+          )}
+        </div>
       </div>
     </div>
   );
