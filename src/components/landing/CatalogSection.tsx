@@ -149,9 +149,6 @@ const CatalogSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { data: dbProducts } = useDbProducts();
 
-  // Use static data as fallback, DB data as primary
-  const { products: staticProducts } = require("@/data/products");
-
   const dbMappedProducts = dbProducts && dbProducts.length > 0
     ? dbProducts.map(toProduct)
     : null;
