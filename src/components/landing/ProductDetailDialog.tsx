@@ -17,9 +17,11 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
     setSelectedIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
-  useState(() => {
-    if (emblaApi) emblaApi.on("select", onSelect);
-  });
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+    return () => { emblaApi.off("select", onSelect); };
+  }, [emblaApi, onSelect]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
