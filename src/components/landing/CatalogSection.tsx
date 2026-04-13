@@ -56,7 +56,7 @@ const CatalogSection = () => {
         <p className="text-center text-muted-foreground mb-8">Pilih kategori produk favorit Anda</p>
 
         <Tabs defaultValue="sofa" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-8 bg-secondary">
+          <TabsList className="grid w-full max-w-lg mx-auto grid-cols-4 mb-8 bg-secondary">
             {categories.map((cat) => (
               <TabsTrigger key={cat.value} value={cat.value} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 {cat.label}
