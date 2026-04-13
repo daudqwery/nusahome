@@ -104,7 +104,7 @@ const ImageGallery = ({ productId, productName }: { productId: string; productNa
       <div className="overflow-hidden rounded-lg" ref={emblaRef}>
         <div className="flex">
           {images.map((img, i) => (
-            <div key={i} className="flex-[0_0_100%] min-w-0">
+            <div key={i} className="flex-[0_0_100%] min-w-0 cursor-zoom-in" onClick={() => setZoomImage(img)}>
               <img src={img} alt={`${productName} - foto ${i + 1}`} className="w-full h-56 object-cover" />
             </div>
           ))}
