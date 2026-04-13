@@ -1,32 +1,31 @@
 
 
-# Landing Page NusaHome Sofa & Kasur
+## Plan: Differentiate Size Variant Images
 
-Landing page lengkap untuk toko **NusaHome** yang menjual sofa, kasur, dan sofa bed. Desain modern, mobile-first (viewport 394px), dengan nuansa warm/cozy untuk furnitur rumah.
+### Problem
+Currently, every size variant within a product uses the exact same image (`productMainImages["X"]`). This makes it impossible for users to visually distinguish between sizes.
 
-## Struktur Halaman
+### Solution
+Generate unique size-specific product images for each size variant across all 34 products. Each image will visually represent the different size (e.g., a 1-seater sofa vs a 3-seater sofa).
 
-1. **Hero Section** -- Banner utama dengan tagline "Nyaman di Rumah, Mulai dari NusaHome", background gradient warm, CTA tombol WhatsApp & lihat katalog
-2. **Keunggulan Toko** -- 4 icon cards: COD/Bayar di Tempat, Garansi Kualitas, Harga Pabrik, Pengiriman Seluruh Indonesia
-3. **Katalog Produk** -- 3 kategori tab (Sofa, Kasur, Sofa Bed) dengan card produk berisi gambar placeholder, nama, harga, badge diskon, tombol WhatsApp order
-4. **Tentang NusaHome** -- Deskripsi singkat toko, statistik (produk terjual, rating, dll)
-5. **Testimoni** -- Carousel review pelanggan
-6. **FAQ** -- Accordion pertanyaan umum (pengiriman, garansi, retur)
-7. **Footer** -- Link toko di TikTok Shop & Tokopedia, kontak WhatsApp, alamat
+### Steps
 
-## Detail Teknis
+1. **Generate size-specific images** -- Create unique AI-generated images for each size variant. For products with 2-4 size variants, this means ~80-100 new images total. Each image will depict the product at the correct proportions for that size. Files will be saved as `src/assets/products/sizes/{productId}-size-{index}.jpg`.
 
-- **Files**: `src/pages/Index.tsx` (main page), komponen terpisah per section di `src/components/landing/`
-- **Styling**: Tailwind CSS, custom CSS variables warm palette (cokelat/krem/emas)
-- **Components used**: Card, Button, Tabs, Accordion, Carousel dari shadcn/ui
-- **WhatsApp CTA**: Floating button + inline buttons, link ke `wa.me/` 
-- **Responsive**: Mobile-first, grid 1 col mobile -> 2-3 col desktop
-- **Data produk**: Array statis di file terpisah `src/data/products.ts` dengan produk-produk NusaHome (sofa, kasur memory foam, sofa bed lipat)
+2. **Create size image mapping** -- Add a new export in `src/data/productImages.ts` that maps product IDs to arrays of size-specific images:
+   ```ts
+   export const productSizeImages: Record<string, string[]> = {
+     "1": [sofabed1Size90, sofabed1Size135, sofabed1Size150, sofabed1Size180],
+     ...
+   };
+   ```
 
-## Warna
+3. **Update product data** -- Modify `src/data/products.ts` to assign each `sizeVariant.image` from the new size image mapping instead of repeating the main product image.
 
-- Primary: warm brown/cokelat
-- Accent: emas/gold
-- Background: krem hangat
-- Text: dark brown
+4. **Build verification** -- Run build to confirm all imports resolve correctly.
+
+### Technical Details
+- Images will be generated as 800x600 JPEG at ~80% quality to keep bundle size reasonable
+- For the 10 real Tokopedia products (IDs 1-11), we'll use variations of existing real photos (color variants, different angles) where available, and generate complementary images where not
+- For the 24 generated products (IDs 12-34), all size images will be AI-generated with size-appropriate visuals
 
