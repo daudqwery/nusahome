@@ -22,7 +22,13 @@ const ProductCard = ({ product }: { product: Product }) => (
     </div>
     <CardContent className="p-4">
       <h3 className="font-semibold text-foreground text-sm mb-1 line-clamp-1">{product.name}</h3>
-      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
+      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
+      {(product.rating || product.sold) && (
+        <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
+          {product.rating && <span className="text-amber-500">⭐ {product.rating}</span>}
+          {product.sold && <span>{product.sold} terjual</span>}
+        </div>
+      )}
       <div className="flex items-end gap-2 mb-3">
         <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
         {product.originalPrice && (
