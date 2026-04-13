@@ -42,6 +42,7 @@ export const productGalleries: Record<string, string[]> = {
   "8": [sofaMinimalisAbu, beanbagHijauReal, beanbagHitamReal, beanbagKuningReal, beanbagPutihReal, beanbagPinkReal],
   "9": [kasurPegas],
   "10": [bantalMemoryFoam],
+  "11": [kasurPegas],
 };
 
 // Color variant images per product
