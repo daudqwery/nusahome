@@ -16,6 +16,25 @@ type Product = Tables<"products">;
 
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif"];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+const validateImageFile = (file: File): string | null => {
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
+    return `Format tidak didukung (${file.name}). Gunakan JPG, PNG, WEBP, atau GIF.`;
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    const sizeMb = (file.size / 1024 / 1024).toFixed(2);
+    return `Ukuran terlalu besar (${file.name}: ${sizeMb}MB). Maksimum 5MB.`;
+  }
+  if (file.size === 0) {
+    return `File kosong (${file.name}).`;
+  }
+  return null;
+};
+
 const AdminProductForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
