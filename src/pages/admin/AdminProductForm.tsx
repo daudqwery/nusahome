@@ -135,17 +135,41 @@ const AdminProductForm = () => {
     })));
   }, [existingProduct]);
 
-  // Image upload handler
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Select gallery files → only build previews (no upload yet)
+  const handleGallerySelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-
+    const newPending: { file: File; previewUrl: string }[] = [];
     for (const file of Array.from(files)) {
       const validationError = validateImageFile(file);
       if (validationError) {
         toast.error(validationError);
         continue;
       }
+      newPending.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+    if (newPending.length > 0) {
+      setPendingGalleryFiles((prev) => [...prev, ...newPending]);
+    }
+    e.target.value = "";
+  };
+
+  const removePendingGallery = (idx: number) => {
+    setPendingGalleryFiles((prev) => {
+      const copy = [...prev];
+      const [removed] = copy.splice(idx, 1);
+      if (removed) URL.revokeObjectURL(removed.previewUrl);
+      return copy;
+    });
+  };
+
+  // Confirm upload of all pending gallery files
+  const uploadPendingGallery = async () => {
+    if (pendingGalleryFiles.length === 0) return;
+    setUploadingGallery(true);
+    const succeeded: number[] = [];
+    for (let i = 0; i < pendingGalleryFiles.length; i++) {
+      const { file } = pendingGalleryFiles[i];
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
       const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error } = await supabase.storage.from("product-images").upload(path, file, {
@@ -153,7 +177,7 @@ const AdminProductForm = () => {
         upsert: false,
       });
       if (error) {
-        toast.error(`Upload gagal: ${error.message}`);
+        toast.error(`Upload gagal (${file.name}): ${error.message}`);
         continue;
       }
       const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
@@ -162,13 +186,26 @@ const AdminProductForm = () => {
         sort_order: prev.length,
         is_thumbnail: prev.length === 0,
       }]);
-      toast.success(`Berhasil upload: ${file.name}`);
+      succeeded.push(i);
     }
-    e.target.value = "";
+    // Remove succeeded pending items
+    setPendingGalleryFiles((prev) => {
+      const remaining: typeof prev = [];
+      prev.forEach((p, idx) => {
+        if (succeeded.includes(idx)) {
+          URL.revokeObjectURL(p.previewUrl);
+        } else {
+          remaining.push(p);
+        }
+      });
+      return remaining;
+    });
+    if (succeeded.length > 0) toast.success(`${succeeded.length} gambar berhasil diupload`);
+    setUploadingGallery(false);
   };
 
-  // Variant option image upload
-  const handleOptionImageUpload = async (vtIdx: number, optIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  // Select a variant option image → preview only
+  const handleOptionImageSelect = (vtIdx: number, optIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) { e.target.value = ""; return; }
     const validationError = validateImageFile(file);
@@ -177,21 +214,46 @@ const AdminProductForm = () => {
       e.target.value = "";
       return;
     }
+    const key = `${vtIdx}-${optIdx}`;
+    setPendingOptionFiles((prev) => {
+      const copy = { ...prev };
+      if (copy[key]) URL.revokeObjectURL(copy[key].previewUrl);
+      copy[key] = { file, previewUrl: URL.createObjectURL(file) };
+      return copy;
+    });
+    e.target.value = "";
+  };
+
+  const cancelPendingOption = (vtIdx: number, optIdx: number) => {
+    const key = `${vtIdx}-${optIdx}`;
+    setPendingOptionFiles((prev) => {
+      const copy = { ...prev };
+      if (copy[key]) URL.revokeObjectURL(copy[key].previewUrl);
+      delete copy[key];
+      return copy;
+    });
+  };
+
+  const uploadPendingOption = async (vtIdx: number, optIdx: number) => {
+    const key = `${vtIdx}-${optIdx}`;
+    const pending = pendingOptionFiles[key];
+    if (!pending) return;
+    const { file } = pending;
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `variants/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await supabase.storage.from("product-images").upload(path, file, {
       contentType: file.type || undefined,
       upsert: false,
     });
-    if (error) { toast.error(`Upload gagal: ${error.message}`); e.target.value = ""; return; }
+    if (error) { toast.error(`Upload gagal: ${error.message}`); return; }
     const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
     setVariantTypes((prev) => {
       const copy = [...prev];
       copy[vtIdx].options[optIdx].image_url = urlData.publicUrl;
       return copy;
     });
+    cancelPendingOption(vtIdx, optIdx);
     toast.success("Gambar varian berhasil diupload");
-    e.target.value = "";
   };
 
 
