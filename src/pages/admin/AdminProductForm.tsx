@@ -56,6 +56,11 @@ const AdminProductForm = () => {
   // Specs
   const [specs, setSpecs] = useState<{ id?: string; label: string; value: string }[]>([]);
 
+  // Pending image previews (selected, not yet uploaded)
+  const [pendingGalleryFiles, setPendingGalleryFiles] = useState<{ file: File; previewUrl: string }[]>([]);
+  const [pendingOptionFiles, setPendingOptionFiles] = useState<Record<string, { file: File; previewUrl: string }>>({});
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+
   // Variant types & options
   const [variantTypes, setVariantTypes] = useState<{ id?: string; name: string; options: { id?: string; value: string; image_url: string }[] }[]>([]);
 
