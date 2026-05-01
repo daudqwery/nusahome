@@ -16,6 +16,25 @@ type Product = Tables<"products">;
 
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif"];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+const validateImageFile = (file: File): string | null => {
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type) && !ALLOWED_EXTENSIONS.includes(ext)) {
+    return `Format tidak didukung (${file.name}). Gunakan JPG, PNG, WEBP, atau GIF.`;
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    const sizeMb = (file.size / 1024 / 1024).toFixed(2);
+    return `Ukuran terlalu besar (${file.name}: ${sizeMb}MB). Maksimum 5MB.`;
+  }
+  if (file.size === 0) {
+    return `File kosong (${file.name}).`;
+  }
+  return null;
+};
+
 const AdminProductForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -117,9 +136,17 @@ const AdminProductForm = () => {
     if (!files) return;
 
     for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop();
+      const validationError = validateImageFile(file);
+      if (validationError) {
+        toast.error(validationError);
+        continue;
+      }
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
       const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("product-images").upload(path, file);
+      const { error } = await supabase.storage.from("product-images").upload(path, file, {
+        contentType: file.type || undefined,
+        upsert: false,
+      });
       if (error) {
         toast.error(`Upload gagal: ${error.message}`);
         continue;
@@ -130,6 +157,7 @@ const AdminProductForm = () => {
         sort_order: prev.length,
         is_thumbnail: prev.length === 0,
       }]);
+      toast.success(`Berhasil upload: ${file.name}`);
     }
     e.target.value = "";
   };
@@ -137,19 +165,30 @@ const AdminProductForm = () => {
   // Variant option image upload
   const handleOptionImageUpload = async (vtIdx: number, optIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const ext = file.name.split(".").pop();
+    if (!file) { e.target.value = ""; return; }
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      e.target.value = "";
+      return;
+    }
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `variants/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file);
-    if (error) { toast.error(`Upload gagal: ${error.message}`); return; }
+    const { error } = await supabase.storage.from("product-images").upload(path, file, {
+      contentType: file.type || undefined,
+      upsert: false,
+    });
+    if (error) { toast.error(`Upload gagal: ${error.message}`); e.target.value = ""; return; }
     const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
     setVariantTypes((prev) => {
       const copy = [...prev];
       copy[vtIdx].options[optIdx].image_url = urlData.publicUrl;
       return copy;
     });
+    toast.success("Gambar varian berhasil diupload");
     e.target.value = "";
   };
+
 
   // Save product
   const saveMutation = useMutation({
