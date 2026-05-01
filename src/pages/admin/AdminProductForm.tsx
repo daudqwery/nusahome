@@ -136,9 +136,17 @@ const AdminProductForm = () => {
     if (!files) return;
 
     for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop();
+      const validationError = validateImageFile(file);
+      if (validationError) {
+        toast.error(validationError);
+        continue;
+      }
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
       const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("product-images").upload(path, file);
+      const { error } = await supabase.storage.from("product-images").upload(path, file, {
+        contentType: file.type || undefined,
+        upsert: false,
+      });
       if (error) {
         toast.error(`Upload gagal: ${error.message}`);
         continue;
@@ -149,7 +157,35 @@ const AdminProductForm = () => {
         sort_order: prev.length,
         is_thumbnail: prev.length === 0,
       }]);
+      toast.success(`Berhasil upload: ${file.name}`);
     }
+    e.target.value = "";
+  };
+
+  // Variant option image upload
+  const handleOptionImageUpload = async (vtIdx: number, optIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) { e.target.value = ""; return; }
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      e.target.value = "";
+      return;
+    }
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = `variants/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file, {
+      contentType: file.type || undefined,
+      upsert: false,
+    });
+    if (error) { toast.error(`Upload gagal: ${error.message}`); e.target.value = ""; return; }
+    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+    setVariantTypes((prev) => {
+      const copy = [...prev];
+      copy[vtIdx].options[optIdx].image_url = urlData.publicUrl;
+      return copy;
+    });
+    toast.success("Gambar varian berhasil diupload");
     e.target.value = "";
   };
 
