@@ -673,7 +673,10 @@ const AdminProductForm = () => {
               </div>
               <div className="space-y-2 pl-4">
                 <p className="text-xs font-medium text-muted-foreground">Opsi:</p>
-                {vt.options.map((opt, optIdx) => (
+                {vt.options.map((opt, optIdx) => {
+                  const pendingKey = `${vtIdx}-${optIdx}`;
+                  const pending = pendingOptionFiles[pendingKey];
+                  return (
                   <div key={optIdx} className="flex gap-2 items-center">
                     <Input
                       placeholder="Nilai opsi"
@@ -681,13 +684,31 @@ const AdminProductForm = () => {
                       onChange={(e) => setVariantTypes((prev) => { const c = [...prev]; c[vtIdx].options[optIdx].value = e.target.value; return c; })}
                       className="flex-1"
                     />
-                    {opt.image_url ? (
-                      <img src={opt.image_url} alt="" className="w-8 h-8 rounded object-cover" />
+                    {pending ? (
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <div className="relative">
+                          <img src={pending.previewUrl} alt="preview" className="w-8 h-8 rounded object-cover ring-2 ring-primary" />
+                        </div>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={() => uploadPendingOption(vtIdx, optIdx)} title="Upload">
+                          <Upload className="h-3 w-3" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => cancelPendingOption(vtIdx, optIdx)} title="Batal">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : opt.image_url ? (
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <img src={opt.image_url} alt="" className="w-8 h-8 rounded object-cover" />
+                        <label className="cursor-pointer">
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleOptionImageSelect(vtIdx, optIdx, e)} />
+                          <span className="text-[10px] text-primary hover:underline">Ganti</span>
+                        </label>
+                      </div>
                     ) : (
                       <label className="cursor-pointer flex-shrink-0">
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleOptionImageUpload(vtIdx, optIdx, e)} />
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleOptionImageSelect(vtIdx, optIdx, e)} />
                         <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
-                          <Upload className="h-3 w-3 text-muted-foreground" />
+                          <Plus className="h-3 w-3 text-muted-foreground" />
                         </div>
                       </label>
                     )}
@@ -697,7 +718,8 @@ const AdminProductForm = () => {
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
-                ))}
+                  );
+                })}
                 <Button size="sm" variant="ghost" onClick={() => {
                   setVariantTypes((prev) => { const c = [...prev]; c[vtIdx].options.push({ value: "", image_url: "" }); return c; });
                 }}>
