@@ -56,6 +56,11 @@ const AdminProductForm = () => {
   // Specs
   const [specs, setSpecs] = useState<{ id?: string; label: string; value: string }[]>([]);
 
+  // Pending image previews (selected, not yet uploaded)
+  const [pendingGalleryFiles, setPendingGalleryFiles] = useState<{ file: File; previewUrl: string }[]>([]);
+  const [pendingOptionFiles, setPendingOptionFiles] = useState<Record<string, { file: File; previewUrl: string }>>({});
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+
   // Variant types & options
   const [variantTypes, setVariantTypes] = useState<{ id?: string; name: string; options: { id?: string; value: string; image_url: string }[] }[]>([]);
 
@@ -130,17 +135,41 @@ const AdminProductForm = () => {
     })));
   }, [existingProduct]);
 
-  // Image upload handler
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Select gallery files → only build previews (no upload yet)
+  const handleGallerySelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-
+    const newPending: { file: File; previewUrl: string }[] = [];
     for (const file of Array.from(files)) {
       const validationError = validateImageFile(file);
       if (validationError) {
         toast.error(validationError);
         continue;
       }
+      newPending.push({ file, previewUrl: URL.createObjectURL(file) });
+    }
+    if (newPending.length > 0) {
+      setPendingGalleryFiles((prev) => [...prev, ...newPending]);
+    }
+    e.target.value = "";
+  };
+
+  const removePendingGallery = (idx: number) => {
+    setPendingGalleryFiles((prev) => {
+      const copy = [...prev];
+      const [removed] = copy.splice(idx, 1);
+      if (removed) URL.revokeObjectURL(removed.previewUrl);
+      return copy;
+    });
+  };
+
+  // Confirm upload of all pending gallery files
+  const uploadPendingGallery = async () => {
+    if (pendingGalleryFiles.length === 0) return;
+    setUploadingGallery(true);
+    const succeeded: number[] = [];
+    for (let i = 0; i < pendingGalleryFiles.length; i++) {
+      const { file } = pendingGalleryFiles[i];
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
       const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error } = await supabase.storage.from("product-images").upload(path, file, {
@@ -148,7 +177,7 @@ const AdminProductForm = () => {
         upsert: false,
       });
       if (error) {
-        toast.error(`Upload gagal: ${error.message}`);
+        toast.error(`Upload gagal (${file.name}): ${error.message}`);
         continue;
       }
       const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
@@ -157,13 +186,26 @@ const AdminProductForm = () => {
         sort_order: prev.length,
         is_thumbnail: prev.length === 0,
       }]);
-      toast.success(`Berhasil upload: ${file.name}`);
+      succeeded.push(i);
     }
-    e.target.value = "";
+    // Remove succeeded pending items
+    setPendingGalleryFiles((prev) => {
+      const remaining: typeof prev = [];
+      prev.forEach((p, idx) => {
+        if (succeeded.includes(idx)) {
+          URL.revokeObjectURL(p.previewUrl);
+        } else {
+          remaining.push(p);
+        }
+      });
+      return remaining;
+    });
+    if (succeeded.length > 0) toast.success(`${succeeded.length} gambar berhasil diupload`);
+    setUploadingGallery(false);
   };
 
-  // Variant option image upload
-  const handleOptionImageUpload = async (vtIdx: number, optIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  // Select a variant option image → preview only
+  const handleOptionImageSelect = (vtIdx: number, optIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) { e.target.value = ""; return; }
     const validationError = validateImageFile(file);
@@ -172,21 +214,46 @@ const AdminProductForm = () => {
       e.target.value = "";
       return;
     }
+    const key = `${vtIdx}-${optIdx}`;
+    setPendingOptionFiles((prev) => {
+      const copy = { ...prev };
+      if (copy[key]) URL.revokeObjectURL(copy[key].previewUrl);
+      copy[key] = { file, previewUrl: URL.createObjectURL(file) };
+      return copy;
+    });
+    e.target.value = "";
+  };
+
+  const cancelPendingOption = (vtIdx: number, optIdx: number) => {
+    const key = `${vtIdx}-${optIdx}`;
+    setPendingOptionFiles((prev) => {
+      const copy = { ...prev };
+      if (copy[key]) URL.revokeObjectURL(copy[key].previewUrl);
+      delete copy[key];
+      return copy;
+    });
+  };
+
+  const uploadPendingOption = async (vtIdx: number, optIdx: number) => {
+    const key = `${vtIdx}-${optIdx}`;
+    const pending = pendingOptionFiles[key];
+    if (!pending) return;
+    const { file } = pending;
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `variants/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await supabase.storage.from("product-images").upload(path, file, {
       contentType: file.type || undefined,
       upsert: false,
     });
-    if (error) { toast.error(`Upload gagal: ${error.message}`); e.target.value = ""; return; }
+    if (error) { toast.error(`Upload gagal: ${error.message}`); return; }
     const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
     setVariantTypes((prev) => {
       const copy = [...prev];
       copy[vtIdx].options[optIdx].image_url = urlData.publicUrl;
       return copy;
     });
+    cancelPendingOption(vtIdx, optIdx);
     toast.success("Gambar varian berhasil diupload");
-    e.target.value = "";
   };
 
 
@@ -445,25 +512,76 @@ const AdminProductForm = () => {
           <CardTitle className="text-base flex items-center justify-between">
             Galeri Gambar
             <label className="cursor-pointer">
-              <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
+              <input type="file" accept="image/*" multiple className="hidden" onChange={handleGallerySelect} />
               <span className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-                <Upload className="h-3.5 w-3.5" />
-                Upload
+                <Plus className="h-3.5 w-3.5" />
+                Pilih Gambar
               </span>
             </label>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          {galleryImages.length === 0 ? (
+        <CardContent className="space-y-3">
+          {pendingGalleryFiles.length > 0 && (
+            <div className="border border-dashed border-primary/40 rounded-lg p-3 space-y-2 bg-primary/5">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-foreground">
+                  Pratinjau ({pendingGalleryFiles.length}) — belum diupload
+                </p>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      pendingGalleryFiles.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+                      setPendingGalleryFiles([]);
+                    }}
+                    disabled={uploadingGallery}
+                  >
+                    Batal
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={uploadPendingGallery}
+                    disabled={uploadingGallery}
+                  >
+                    <Upload className="h-3 w-3 mr-1" />
+                    {uploadingGallery ? "Mengupload..." : "Upload Semua"}
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {pendingGalleryFiles.map((p, i) => (
+                  <div key={i} className="relative rounded-lg overflow-hidden border border-border">
+                    <img src={p.previewUrl} alt={p.file.name} className="w-full h-24 object-cover" />
+                    <button
+                      type="button"
+                      className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center"
+                      onClick={() => removePendingGallery(i)}
+                      disabled={uploadingGallery}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] px-1 py-0.5 truncate">
+                      {p.file.name} · {(p.file.size / 1024).toFixed(0)}KB
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {galleryImages.length === 0 && pendingGalleryFiles.length === 0 ? (
             <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
               <ImageIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Belum ada gambar</p>
+              <p className="text-sm text-muted-foreground mb-2">Belum ada gambar</p>
               <label className="cursor-pointer">
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
-                <span className="text-sm text-primary hover:underline">Upload gambar</span>
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleGallerySelect} />
+                <span className="text-sm text-primary hover:underline">Pilih gambar untuk preview</span>
               </label>
             </div>
-          ) : (
+          ) : galleryImages.length > 0 ? (
             <div className="grid grid-cols-3 gap-2">
               {galleryImages.map((img, i) => (
                 <div key={i} className={`relative group rounded-lg overflow-hidden border-2 ${img.is_thumbnail ? "border-primary" : "border-transparent"}`}>
@@ -490,7 +608,7 @@ const AdminProductForm = () => {
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </CardContent>
       </Card>
 
@@ -555,7 +673,10 @@ const AdminProductForm = () => {
               </div>
               <div className="space-y-2 pl-4">
                 <p className="text-xs font-medium text-muted-foreground">Opsi:</p>
-                {vt.options.map((opt, optIdx) => (
+                {vt.options.map((opt, optIdx) => {
+                  const pendingKey = `${vtIdx}-${optIdx}`;
+                  const pending = pendingOptionFiles[pendingKey];
+                  return (
                   <div key={optIdx} className="flex gap-2 items-center">
                     <Input
                       placeholder="Nilai opsi"
@@ -563,13 +684,31 @@ const AdminProductForm = () => {
                       onChange={(e) => setVariantTypes((prev) => { const c = [...prev]; c[vtIdx].options[optIdx].value = e.target.value; return c; })}
                       className="flex-1"
                     />
-                    {opt.image_url ? (
-                      <img src={opt.image_url} alt="" className="w-8 h-8 rounded object-cover" />
+                    {pending ? (
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <div className="relative">
+                          <img src={pending.previewUrl} alt="preview" className="w-8 h-8 rounded object-cover ring-2 ring-primary" />
+                        </div>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={() => uploadPendingOption(vtIdx, optIdx)} title="Upload">
+                          <Upload className="h-3 w-3" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => cancelPendingOption(vtIdx, optIdx)} title="Batal">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : opt.image_url ? (
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <img src={opt.image_url} alt="" className="w-8 h-8 rounded object-cover" />
+                        <label className="cursor-pointer">
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleOptionImageSelect(vtIdx, optIdx, e)} />
+                          <span className="text-[10px] text-primary hover:underline">Ganti</span>
+                        </label>
+                      </div>
                     ) : (
                       <label className="cursor-pointer flex-shrink-0">
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleOptionImageUpload(vtIdx, optIdx, e)} />
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleOptionImageSelect(vtIdx, optIdx, e)} />
                         <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
-                          <Upload className="h-3 w-3 text-muted-foreground" />
+                          <Plus className="h-3 w-3 text-muted-foreground" />
                         </div>
                       </label>
                     )}
@@ -579,7 +718,8 @@ const AdminProductForm = () => {
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
-                ))}
+                  );
+                })}
                 <Button size="sm" variant="ghost" onClick={() => {
                   setVariantTypes((prev) => { const c = [...prev]; c[vtIdx].options.push({ value: "", image_url: "" }); return c; });
                 }}>
