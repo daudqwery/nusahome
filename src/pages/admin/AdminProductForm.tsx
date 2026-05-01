@@ -512,25 +512,76 @@ const AdminProductForm = () => {
           <CardTitle className="text-base flex items-center justify-between">
             Galeri Gambar
             <label className="cursor-pointer">
-              <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
+              <input type="file" accept="image/*" multiple className="hidden" onChange={handleGallerySelect} />
               <span className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-                <Upload className="h-3.5 w-3.5" />
-                Upload
+                <Plus className="h-3.5 w-3.5" />
+                Pilih Gambar
               </span>
             </label>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          {galleryImages.length === 0 ? (
+        <CardContent className="space-y-3">
+          {pendingGalleryFiles.length > 0 && (
+            <div className="border border-dashed border-primary/40 rounded-lg p-3 space-y-2 bg-primary/5">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-foreground">
+                  Pratinjau ({pendingGalleryFiles.length}) — belum diupload
+                </p>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs"
+                    onClick={() => {
+                      pendingGalleryFiles.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+                      setPendingGalleryFiles([]);
+                    }}
+                    disabled={uploadingGallery}
+                  >
+                    Batal
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={uploadPendingGallery}
+                    disabled={uploadingGallery}
+                  >
+                    <Upload className="h-3 w-3 mr-1" />
+                    {uploadingGallery ? "Mengupload..." : "Upload Semua"}
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {pendingGalleryFiles.map((p, i) => (
+                  <div key={i} className="relative rounded-lg overflow-hidden border border-border">
+                    <img src={p.previewUrl} alt={p.file.name} className="w-full h-24 object-cover" />
+                    <button
+                      type="button"
+                      className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center"
+                      onClick={() => removePendingGallery(i)}
+                      disabled={uploadingGallery}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] px-1 py-0.5 truncate">
+                      {p.file.name} · {(p.file.size / 1024).toFixed(0)}KB
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {galleryImages.length === 0 && pendingGalleryFiles.length === 0 ? (
             <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
               <ImageIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Belum ada gambar</p>
+              <p className="text-sm text-muted-foreground mb-2">Belum ada gambar</p>
               <label className="cursor-pointer">
-                <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
-                <span className="text-sm text-primary hover:underline">Upload gambar</span>
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleGallerySelect} />
+                <span className="text-sm text-primary hover:underline">Pilih gambar untuk preview</span>
               </label>
             </div>
-          ) : (
+          ) : galleryImages.length > 0 ? (
             <div className="grid grid-cols-3 gap-2">
               {galleryImages.map((img, i) => (
                 <div key={i} className={`relative group rounded-lg overflow-hidden border-2 ${img.is_thumbnail ? "border-primary" : "border-transparent"}`}>
@@ -557,7 +608,7 @@ const AdminProductForm = () => {
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </CardContent>
       </Card>
 
