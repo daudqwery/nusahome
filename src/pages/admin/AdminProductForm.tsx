@@ -189,22 +189,6 @@ const AdminProductForm = () => {
     e.target.value = "";
   };
 
-  // Variant option image upload
-  const handleOptionImageUpload = async (vtIdx: number, optIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const ext = file.name.split(".").pop();
-    const path = `variants/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file);
-    if (error) { toast.error(`Upload gagal: ${error.message}`); return; }
-    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
-    setVariantTypes((prev) => {
-      const copy = [...prev];
-      copy[vtIdx].options[optIdx].image_url = urlData.publicUrl;
-      return copy;
-    });
-    e.target.value = "";
-  };
 
   // Save product
   const saveMutation = useMutation({
