@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Package, FolderTree, LayoutDashboard, Menu, ArrowLeft, LogOut } from "lucide-react";
@@ -36,8 +37,15 @@ const NavContent = ({ currentPath, onNavigate }: { currentPath: string; onNaviga
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sheetOpen, setSheetOpen] = useState(false);
   const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success("Berhasil keluar");
+    navigate("/admin/login", { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -71,7 +79,7 @@ const AdminLayout = () => {
                 <span className="hidden sm:inline">Toko</span>
               </Link>
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => signOut()}>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 sm:mr-1" />
               <span className="hidden sm:inline">Keluar</span>
             </Button>
