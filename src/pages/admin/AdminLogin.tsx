@@ -137,6 +137,18 @@ VALUES ('${user.id}', 'admin');`}
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
               />
             </div>
+            {mode === "login" && (
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={(v) => setRememberMe(v === true)}
+                />
+                <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
+                  Ingat saya di perangkat ini
+                </Label>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {mode === "login" ? "Masuk" : "Daftar"}
