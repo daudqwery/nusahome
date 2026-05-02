@@ -18,6 +18,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Honor "Remember me": if disabled, sign out when the tab is closed.
+  useEffect(() => {
+    const handler = () => {
+      const remember = localStorage.getItem("admin_remember_me");
+      if (remember === "false") {
+        // Clear the persisted session so next visit requires login again.
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith("sb-") && k.endsWith("-auth-token"))
+          .forEach((k) => localStorage.removeItem(k));
+      }
+    };
+    window.addEventListener("pagehide", handler);
+    return () => window.removeEventListener("pagehide", handler);
+  }, []);
+
   useEffect(() => {
     // Set up listener FIRST
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
