@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Package, FolderTree, LayoutDashboard, Menu, ArrowLeft } from "lucide-react";
+import { Package, FolderTree, LayoutDashboard, Menu, ArrowLeft, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
@@ -36,6 +37,7 @@ const NavContent = ({ currentPath, onNavigate }: { currentPath: string; onNaviga
 const AdminLayout = () => {
   const location = useLocation();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,12 +59,21 @@ const AdminLayout = () => {
             </SheetContent>
           </Sheet>
           <h1 className="text-base font-bold text-foreground">Admin Panel</h1>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            {user && (
+              <span className="hidden sm:inline text-xs text-muted-foreground max-w-[140px] truncate">
+                {user.email}
+              </span>
+            )}
             <Button variant="ghost" size="sm" asChild>
               <Link to="/">
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                Kembali ke Toko
+                <span className="hidden sm:inline">Toko</span>
               </Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => signOut()}>
+              <LogOut className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Keluar</span>
             </Button>
           </div>
         </div>
