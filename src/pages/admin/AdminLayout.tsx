@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Package, FolderTree, LayoutDashboard, Menu, ArrowLeft } from "lucide-react";
+import { Package, FolderTree, LayoutDashboard, Menu, ArrowLeft, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
