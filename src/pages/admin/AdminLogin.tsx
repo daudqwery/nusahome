@@ -7,8 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck } from "lucide-react";
+
+const REMEMBER_KEY = "admin_remember_me";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -17,6 +20,10 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => {
+    const stored = localStorage.getItem(REMEMBER_KEY);
+    return stored === null ? true : stored === "true";
+  });
 
   useEffect(() => {
     if (!authLoading && user && isAdmin) navigate("/admin", { replace: true });
@@ -71,6 +78,7 @@ VALUES ('${user.id}', 'admin');`}
     e.preventDefault();
     setSubmitting(true);
     try {
+      localStorage.setItem(REMEMBER_KEY, String(rememberMe));
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email,
