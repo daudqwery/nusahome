@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Save, Plus, Trash2, Upload, GripVertical, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, Upload, GripVertical, Image as ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -606,22 +606,51 @@ const AdminProductForm = () => {
               {galleryImages.map((img, i) => (
                 <div key={i} className={`relative group rounded-lg overflow-hidden border-2 ${img.is_thumbnail ? "border-primary" : "border-transparent"}`}>
                   <img src={img.image_url} alt="" className="w-full h-24 object-cover" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex flex-wrap items-center justify-center gap-1 p-1">
                     <Button
                       variant="ghost" size="icon"
                       className="h-6 w-6 text-white opacity-0 group-hover:opacity-100"
+                      title="Jadikan thumbnail"
                       onClick={() => setGalleryImages((prev) => prev.map((g, gi) => ({ ...g, is_thumbnail: gi === i })))}
                     >
                       <ImageIcon className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost" size="icon"
+                      className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 disabled:opacity-30"
+                      title="Geser kiri"
+                      disabled={i === 0}
+                      onClick={() => setGalleryImages((prev) => {
+                        const c = [...prev];
+                        [c[i - 1], c[i]] = [c[i], c[i - 1]];
+                        return c;
+                      })}
+                    >
+                      <ArrowUp className="h-3 w-3 -rotate-90" />
+                    </Button>
+                    <Button
+                      variant="ghost" size="icon"
+                      className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 disabled:opacity-30"
+                      title="Geser kanan"
+                      disabled={i === galleryImages.length - 1}
+                      onClick={() => setGalleryImages((prev) => {
+                        const c = [...prev];
+                        [c[i + 1], c[i]] = [c[i], c[i + 1]];
+                        return c;
+                      })}
+                    >
+                      <ArrowDown className="h-3 w-3 -rotate-90" />
+                    </Button>
+                    <Button
+                      variant="ghost" size="icon"
                       className="h-6 w-6 text-white opacity-0 group-hover:opacity-100"
+                      title="Hapus"
                       onClick={() => setGalleryImages((prev) => prev.filter((_, gi) => gi !== i))}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
+                  <span className="absolute top-1 left-1 text-[9px] bg-black/60 text-white px-1.5 py-0.5 rounded">#{i + 1}</span>
                   {img.is_thumbnail && (
                     <span className="absolute bottom-1 left-1 text-[9px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">Thumbnail</span>
                   )}
