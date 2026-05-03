@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Save, Plus, Trash2, Upload, GripVertical, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, Upload, GripVertical, Image as ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -315,25 +315,31 @@ const AdminProductForm = () => {
         );
       }
 
-      // Save variant types & options
-      // First delete old variant values, variants, options, and types
-      await supabase.from("product_variant_values").delete().neq("id", "00000000-0000-0000-0000-000000000000")
-        .then(() => supabase.from("product_variants").delete().eq("product_id", productId!))
-        .then(() => {
-          // We need to delete options via variant_types
-          return supabase.from("variant_types").select("id").eq("product_id", productId!);
-        })
-        .then(async ({ data: vtIds }) => {
-          if (vtIds && vtIds.length > 0) {
-            for (const vt of vtIds) {
-              await supabase.from("variant_options").delete().eq("variant_type_id", vt.id);
-            }
-          }
-          return supabase.from("variant_types").delete().eq("product_id", productId!);
-        });
+      // === Clean up old variant data SCOPED to this product only ===
+      // 1. Get old variant ids for this product, then delete their values
+      const { data: oldVariants } = await supabase
+        .from("product_variants").select("id").eq("product_id", productId!);
+      if (oldVariants && oldVariants.length > 0) {
+        await supabase.from("product_variant_values")
+          .delete()
+          .in("variant_id", oldVariants.map((v) => v.id));
+      }
+      // 2. Delete variants
+      await supabase.from("product_variants").delete().eq("product_id", productId!);
+      // 3. Delete options (via old variant types)
+      const { data: oldTypes } = await supabase
+        .from("variant_types").select("id").eq("product_id", productId!);
+      if (oldTypes && oldTypes.length > 0) {
+        await supabase.from("variant_options")
+          .delete()
+          .in("variant_type_id", oldTypes.map((t) => t.id));
+      }
+      // 4. Delete variant types
+      await supabase.from("variant_types").delete().eq("product_id", productId!);
 
-      // Insert new variant types and options
-      const optionIdMap: Record<string, string> = {}; // "typeIdx-optIdx" -> uuid
+      // === Insert new variant types & options, building a value→optionId map per type ===
+      // Map: typeIdx -> { optionValue -> optionId }
+      const optionIdByTypeValue: Record<number, Record<string, string>> = {};
       for (let vtIdx = 0; vtIdx < variantTypes.length; vtIdx++) {
         const vt = variantTypes[vtIdx];
         if (!vt.name.trim()) continue;
@@ -342,18 +348,24 @@ const AdminProductForm = () => {
           .select("id").single();
         if (vtErr) throw vtErr;
 
+        optionIdByTypeValue[vtIdx] = {};
         for (let optIdx = 0; optIdx < vt.options.length; optIdx++) {
           const opt = vt.options[optIdx];
           if (!opt.value.trim()) continue;
           const { data: optData, error: optErr } = await supabase.from("variant_options")
-            .insert({ variant_type_id: vtData.id, value: opt.value.trim(), image_url: opt.image_url || null, sort_order: optIdx })
+            .insert({
+              variant_type_id: vtData.id,
+              value: opt.value.trim(),
+              image_url: opt.image_url || null,
+              sort_order: optIdx,
+            })
             .select("id").single();
           if (optErr) throw optErr;
-          optionIdMap[`${vtIdx}-${optIdx}`] = optData.id;
+          optionIdByTypeValue[vtIdx][opt.value.trim()] = optData.id;
         }
       }
 
-      // Save product variants
+      // === Save product variants AND link to options ===
       for (const pv of productVariants) {
         const { data: pvData, error: pvErr } = await supabase.from("product_variants").insert({
           product_id: productId!,
@@ -368,8 +380,16 @@ const AdminProductForm = () => {
         }).select("id").single();
         if (pvErr) throw pvErr;
 
-        // Link variant to options via optionValues (we need to find the option IDs)
-        // This is simplified - in a real app you'd track option IDs more carefully
+        // Link variant → each option (optionValues[k] belongs to variantTypes[k])
+        const links: { variant_id: string; option_id: string }[] = [];
+        pv.optionValues.forEach((val, k) => {
+          const optionId = optionIdByTypeValue[k]?.[val.trim()];
+          if (optionId) links.push({ variant_id: pvData.id, option_id: optionId });
+        });
+        if (links.length > 0) {
+          const { error: linkErr } = await supabase.from("product_variant_values").insert(links);
+          if (linkErr) throw linkErr;
+        }
       }
 
       return productId;
@@ -586,22 +606,51 @@ const AdminProductForm = () => {
               {galleryImages.map((img, i) => (
                 <div key={i} className={`relative group rounded-lg overflow-hidden border-2 ${img.is_thumbnail ? "border-primary" : "border-transparent"}`}>
                   <img src={img.image_url} alt="" className="w-full h-24 object-cover" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex flex-wrap items-center justify-center gap-1 p-1">
                     <Button
                       variant="ghost" size="icon"
                       className="h-6 w-6 text-white opacity-0 group-hover:opacity-100"
+                      title="Jadikan thumbnail"
                       onClick={() => setGalleryImages((prev) => prev.map((g, gi) => ({ ...g, is_thumbnail: gi === i })))}
                     >
                       <ImageIcon className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost" size="icon"
+                      className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 disabled:opacity-30"
+                      title="Geser kiri"
+                      disabled={i === 0}
+                      onClick={() => setGalleryImages((prev) => {
+                        const c = [...prev];
+                        [c[i - 1], c[i]] = [c[i], c[i - 1]];
+                        return c;
+                      })}
+                    >
+                      <ArrowUp className="h-3 w-3 -rotate-90" />
+                    </Button>
+                    <Button
+                      variant="ghost" size="icon"
+                      className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 disabled:opacity-30"
+                      title="Geser kanan"
+                      disabled={i === galleryImages.length - 1}
+                      onClick={() => setGalleryImages((prev) => {
+                        const c = [...prev];
+                        [c[i + 1], c[i]] = [c[i], c[i + 1]];
+                        return c;
+                      })}
+                    >
+                      <ArrowDown className="h-3 w-3 -rotate-90" />
+                    </Button>
+                    <Button
+                      variant="ghost" size="icon"
                       className="h-6 w-6 text-white opacity-0 group-hover:opacity-100"
+                      title="Hapus"
                       onClick={() => setGalleryImages((prev) => prev.filter((_, gi) => gi !== i))}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
+                  <span className="absolute top-1 left-1 text-[9px] bg-black/60 text-white px-1.5 py-0.5 rounded">#{i + 1}</span>
                   {img.is_thumbnail && (
                     <span className="absolute bottom-1 left-1 text-[9px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded">Thumbnail</span>
                   )}
